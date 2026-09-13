@@ -1,11 +1,24 @@
 package vm
 
-import "errors"
+import (
+	"errors"
+	"math/bits"
+)
+
+const PageSize uint64 = 4096
 
 var (
 	ErrOutOfRange       = errors.New("out of range")
 	ErrPageNotPresented = errors.New("page not presented")
 )
+
+func PageNumber(addr uint64) uint64 {
+	return addr >> bits.Len64(PageSize)
+}
+
+func PageOffset(addr uint64) uint64 {
+	return addr & (PageSize - 1)
+}
 
 type Page struct {
 	isPresented bool
