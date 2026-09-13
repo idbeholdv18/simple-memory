@@ -100,16 +100,16 @@ func TestAllocate(t *testing.T) {
 	}
 
 	_, err = a.Allocate()
-	if !errors.Is(err, ERR_OUT_OF_MEMORY) {
-		t.Errorf("expected err: %v", ERR_OUT_OF_MEMORY)
+	if !errors.Is(err, ErrOutOfMemory) {
+		t.Errorf("expected err: %v", ErrOutOfMemory)
 	}
 }
 
 func TestFree(t *testing.T) {
 	a := NewFrameAllocator(1)
 
-	if err := a.Free(0); !errors.Is(err, ERR_FREE_FRAME_RELEASE) {
-		t.Errorf("expected error: %v, got %v", ERR_FREE_FRAME_RELEASE, err)
+	if err := a.Free(0); !errors.Is(err, ErrFreeFrameRelease) {
+		t.Errorf("expected error: %v, got %v", ErrFreeFrameRelease, err)
 	}
 
 	frame, err := a.Allocate()
@@ -124,8 +124,8 @@ func TestFree(t *testing.T) {
 	}
 
 	err = a.Free(frame)
-	if !errors.Is(err, ERR_FREE_FRAME_RELEASE) {
-		t.Errorf("expected err: %v", ERR_FREE_FRAME_RELEASE)
+	if !errors.Is(err, ErrFreeFrameRelease) {
+		t.Errorf("expected err: %v", ErrFreeFrameRelease)
 	}
 }
 
