@@ -1,6 +1,7 @@
 package pm
 
 import (
+	"errors"
 	"testing"
 )
 
@@ -70,5 +71,80 @@ func TestFrameNumbersAndOffsets(t *testing.T) {
 				t.Errorf("expected %d:%d, got %d:%d", tt.want[0], tt.want[1], frameNumber, frameOffset)
 			}
 		})
+	}
+}
+
+func TestNewFrameAllocator(t *testing.T) {
+	a := NewFrameAllocator(3)
+
+	if len(a.state) != 3 {
+		t.Errorf("incorrect allocator state size: %d, expected 3", len(a.state))
+	}
+}
+
+func TestAllocate(t *testing.T) {
+	var frames uint64 = 3
+	a := NewFrameAllocator(frames)
+
+	var err error
+
+	for i := range frames {
+		frame, err := a.Allocate()
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+
+		if frame != i {
+			t.Errorf("incorrect frame was allocated: %d, expected %d", frame, i)
+		}
+	}
+
+	_, err = a.Allocate()
+	if !errors.Is(err, ERR_OUT_OF_MEMORY) {
+		t.Errorf("expected err: %v", ERR_OUT_OF_MEMORY)
+	}
+}
+
+func TestFree(t *testing.T) {
+	a := NewFrameAllocator(1)
+
+	if err := a.Free(0); !errors.Is(err, ERR_FREE_FRAME_RELEASE) {
+		t.Errorf("expected error: %v, got %v", ERR_FREE_FRAME_RELEASE, err)
+	}
+
+	frame, err := a.Allocate()
+
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	err = a.Free(frame)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	err = a.Free(frame)
+	if !errors.Is(err, ERR_FREE_FRAME_RELEASE) {
+		t.Errorf("expected err: %v", ERR_FREE_FRAME_RELEASE)
+	}
+}
+
+func TestFirstFitAllocate(t *testing.T) {
+	var frames uint64 = 3
+	a := NewFrameAllocator(frames)
+
+	var err error
+
+	for range frames {
+		_, err = a.Allocate()
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+	}
+
+	a.Free(1)
+	frame, _ := a.Allocate()
+	if frame != 1 {
+		t.Errorf("incorrect frame was allocated: %d, expected 1", frame)
 	}
 }
