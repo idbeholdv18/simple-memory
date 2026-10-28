@@ -14,7 +14,7 @@ var (
 const FrameSize = 4096
 
 func FrameNumber(addr uint64) uint64 {
-	return addr >> bits.Len64(FrameSize-1)
+	return addr >> (bits.Len64(FrameSize) - 1)
 }
 
 func FrameOffset(addr uint64) uint64 {
