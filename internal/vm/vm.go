@@ -13,7 +13,7 @@ var (
 )
 
 func PageNumber(addr uint64) uint64 {
-	return addr >> bits.Len64(PageSize)
+	return addr >> (bits.Len64(PageSize) - 1)
 }
 
 func PageOffset(addr uint64) uint64 {
@@ -55,4 +55,16 @@ func (pt *PageTable) Translate(page uint64) (uint64, error) {
 	}
 
 	return pt.table[page].frame, nil
+}
+
+func (pt *PageTable) TranslateAddress(addr uint64) (uint64, error) {
+	pageNumber := PageNumber(addr)
+	pageOffset := PageOffset(addr)
+
+	frameNumber, err := pt.Translate(pageNumber)
+	if err != nil {
+		return 0, err
+	}
+
+	return frameNumber<<uint64(bits.Len64(PageSize)-1) | pageOffset, nil
 }
