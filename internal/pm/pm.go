@@ -30,10 +30,15 @@ func FrameOffset(addr uint64) uint64 {
 	return addr & (FrameSize - 1)
 }
 
+// PhysicalMemory is a plain slice of bytes, representing data
 type PhysicalMemory struct {
 	data []byte
 }
 
+// NewMemory creates a physical memory region of the given size in bytes.
+// The size does not have to be a multiple of the frame size.
+// Any remaining bytes that do not form a complete frame cannot be
+// allocated by the frame allocator.
 func NewMemory(size uint64) *PhysicalMemory {
 	return &PhysicalMemory{
 		data: make([]byte, size),
