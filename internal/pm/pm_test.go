@@ -86,6 +86,17 @@ func ExampleFrameNumber() {
 	// Address 8195 belongs to frame 2
 }
 
+func ExampleFrameOffset() {
+	// Let addr to be 8195
+	addr := uint64(8195)
+	offset := FrameOffset(addr)
+
+	fmt.Printf("Address %d has offset %d\n", addr, offset)
+
+	// Output:
+	// Address 8195 has offset 3
+}
+
 func TestNewFrameAllocator(t *testing.T) {
 	a := NewFrameAllocator(3)
 

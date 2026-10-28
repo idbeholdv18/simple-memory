@@ -22,6 +22,10 @@ func FrameNumber(addr uint64) uint64 {
 	return addr >> (bits.Len64(FrameSize) - 1)
 }
 
+// FrameOffset calculates offset by address inside frame
+//
+// Addr is a full address in physical memory.
+// Returns frame offset without frame number
 func FrameOffset(addr uint64) uint64 {
 	return addr & (FrameSize - 1)
 }
