@@ -2,6 +2,7 @@ package vm
 
 import (
 	"errors"
+	"github/idbeholdv18/simple-memory/internal/pm"
 	"math/bits"
 )
 
@@ -10,6 +11,7 @@ const PageSize uint64 = 4096
 var (
 	ErrOutOfRange       = errors.New("out of range")
 	ErrPageNotPresented = errors.New("page not presented")
+	ErrIncorrectVMSize  = errors.New("incorrect vm size")
 )
 
 func PageNumber(addr uint64) uint64 {
@@ -67,4 +69,32 @@ func (pt *PageTable) TranslateAddress(addr uint64) (uint64, error) {
 	}
 
 	return frameNumber<<uint64(bits.Len64(PageSize)-1) | pageOffset, nil
+}
+
+type VirtualMemory struct {
+	physicalMemory *pm.PhysicalMemory
+	allocator      *pm.FrameAllocator
+	pageTable      *PageTable
+}
+
+func NewVirtualMemory(pmSize uint64, vmSize uint64) (*VirtualMemory, error) {
+	if pmSize == 0 || vmSize == 0 {
+		return nil, ErrIncorrectVMSize
+	}
+	if pmSize%pm.FrameSize != 0 || vmSize%PageSize != 0 {
+		return nil, ErrIncorrectVMSize
+	}
+
+	frames := pmSize / pm.FrameSize
+	pages := vmSize / PageSize
+
+	physicalMemory := pm.NewMemory(pmSize)
+	allocator := pm.NewFrameAllocator(frames)
+	pageTable := NewPageTable(pages)
+
+	return &VirtualMemory{
+		physicalMemory: physicalMemory,
+		pageTable:      pageTable,
+		allocator:      allocator,
+	}, nil
 }
