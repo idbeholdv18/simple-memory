@@ -45,6 +45,9 @@ func NewMemory(size uint64) *PhysicalMemory {
 	}
 }
 
+// Read returns byte from physical memory by full address
+// Addr have to be in range [0, len(m.data)-1] or it will
+// return ErrOutOfRange otherwise.
 func (m *PhysicalMemory) Read(addr uint64) (byte, error) {
 	if addr >= uint64(len(m.data)) {
 		return 0x0, ErrOutOfRange
@@ -52,6 +55,12 @@ func (m *PhysicalMemory) Read(addr uint64) (byte, error) {
 	return m.data[addr], nil
 }
 
+// Write stores a byte at the given physical address.
+// The address must be in the range [0, len(m.data)-1].
+//
+// It returns ErrOutOfRange if the address is outside this range.
+//
+// It returns nil on successful write.
 func (m *PhysicalMemory) Write(addr uint64, value byte) error {
 	if addr >= uint64(len(m.data)) {
 		return ErrOutOfRange
