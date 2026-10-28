@@ -2,6 +2,7 @@ package pm
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 )
 
@@ -72,6 +73,17 @@ func TestFrameNumbersAndOffsets(t *testing.T) {
 			}
 		})
 	}
+}
+
+func ExampleFrameNumber() {
+	// Let addr to be 8195
+	addr := uint64(8195)
+	frame := FrameNumber(addr)
+
+	fmt.Printf("Address %d belongs to frame %d\n", addr, frame)
+
+	// Output:
+	// Address 8195 belongs to frame 2
 }
 
 func TestNewFrameAllocator(t *testing.T) {

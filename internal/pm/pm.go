@@ -11,8 +11,13 @@ var (
 	ErrFreeFrameRelease = errors.New("free frame release")
 )
 
+// Size of per frame
 const FrameSize = 4096
 
+// FrameNumber calculates frame number from address
+//
+// Addr is a full address in physical memory.
+// Returns frame number without offset
 func FrameNumber(addr uint64) uint64 {
 	return addr >> (bits.Len64(FrameSize) - 1)
 }
