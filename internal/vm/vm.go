@@ -9,9 +9,10 @@ import (
 const PageSize uint64 = 4096
 
 var (
-	ErrOutOfRange       = errors.New("out of range")
-	ErrPageNotPresented = errors.New("page not presented")
-	ErrIncorrectVMSize  = errors.New("incorrect vm size")
+	ErrOutOfRange        = errors.New("out of range")
+	ErrPageNotPresented  = errors.New("page not presented")
+	ErrIncorrectVMSize   = errors.New("incorrect vm size")
+	ErrPageAlreadyMapped = errors.New("page already mapped")
 )
 
 func PageNumber(addr uint64) uint64 {
@@ -97,4 +98,28 @@ func NewVirtualMemory(pmSize uint64, vmSize uint64) (*VirtualMemory, error) {
 		pageTable:      pageTable,
 		allocator:      allocator,
 	}, nil
+}
+
+func (m *VirtualMemory) MapPage(page uint64) error {
+	frame, err := m.pageTable.Translate(page)
+
+	if errors.Is(err, ErrPageNotPresented) {
+		if frame, err = m.allocator.Allocate(); err != nil {
+			return err
+		}
+
+		if err := m.pageTable.Map(page, frame); err != nil {
+			if freeErr := m.allocator.Free(frame); freeErr != nil {
+				return errors.Join(err, freeErr)
+			}
+			return err
+		}
+
+		return nil
+	}
+
+	if err != nil {
+		return err
+	}
+	return ErrPageAlreadyMapped
 }
